@@ -11,13 +11,9 @@
 
 #include <time.h>
 
-#include <atomic>
+//#include <atomic>
 #include <memory>
 #include <set>
-#include <chrono>
-#include <iostream>
-#include <queue>
-#include <tuple>
 
 #include "args.h"
 #include "dictionary.h"
@@ -43,10 +39,10 @@ class FastText {
 
   std::shared_ptr<Model> model_;
 
-  std::atomic<int64_t> tokenCount_;
-  std::atomic<real> loss_;
+  // !!! std::atomic<int64_t> tokenCount_;
+  int64_t tokenCount_;
 
-  std::chrono::steady_clock::time_point start_;
+  clock_t start;
   void signModel(std::ostream&);
   bool checkModel(std::istream&);
 
@@ -81,7 +77,7 @@ class FastText {
   void saveModel();
   void loadModel(std::istream&);
   void loadModel(const std::string&);
-  void printInfo(real, real, std::ostream&);
+  void printInfo(real, real);
 
   void supervised(
       Model&,
@@ -92,25 +88,21 @@ class FastText {
   void skipgram(Model&, real, const std::vector<int32_t>&);
   std::vector<int32_t> selectEmbeddings(int32_t) const;
   void getSentenceVector(std::istream&, Vector&);
-  void quantize(const Args);
-  std::tuple<int64_t, double, double> test(std::istream&, int32_t, real = 0.0);
-  void predict(std::istream&, int32_t, bool, real = 0.0);
+  void quantize(std::shared_ptr<Args>);
+  void test(std::istream&, int32_t);
+  void predict(std::istream&, int32_t, bool);
   void predict(
       std::istream&,
       int32_t,
-      std::vector<std::pair<real, std::string>>&,
-      real = 0.0) const;
+      std::vector<std::pair<real, std::string>>&) const;
   void ngramVectors(std::string);
   void precomputeWordVectors(Matrix&);
-  void findNN(
-      const Matrix&,
-      const Vector&,
-      int32_t,
-      const std::set<std::string>&,
-      std::vector<std::pair<real, std::string>>& results);
+  void
+  findNN(const Matrix&, const Vector&, int32_t, const std::set<std::string>&);
+  void nn(int32_t);
   void analogies(int32_t);
   void trainThread(int32_t);
-  void train(const Args);
+  void train(std::shared_ptr<Args>);
 
   void loadVectors(std::string);
   int getDimension() const;

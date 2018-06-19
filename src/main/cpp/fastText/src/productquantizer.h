@@ -18,17 +18,19 @@
 #include "real.h"
 #include "vector.h"
 
+#define eps_ (1e-7)
+
 namespace fasttext {
 
 class ProductQuantizer {
   protected:
-    const int32_t nbits_ = 8;
-    const int32_t ksub_ = 1 << nbits_;
-    const int32_t max_points_per_cluster_ = 256;
-    const int32_t max_points_ = max_points_per_cluster_ * ksub_;
-    const int32_t seed_ = 1234;
-    const int32_t niter_ = 25;
-    const real eps_ = 1e-7;
+    static const int32_t nbits_ = 8;
+    static const int32_t ksub_ = 1 << nbits_;
+    static const int32_t max_points_per_cluster_ = 256;
+    static const int32_t max_points_ = max_points_per_cluster_ * ksub_;
+    static const int32_t seed_ = 1234;
+    static const int32_t niter_ = 25;
+    //static const real eps_ = 1e-7;
 
     int32_t dim_;
     int32_t nsubq_;

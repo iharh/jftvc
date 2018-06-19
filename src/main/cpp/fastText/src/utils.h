@@ -19,6 +19,8 @@
 # define FASTTEXT_DEPRECATED(msg)
 #endif
 
+#include <stdint.h>
+
 namespace fasttext {
 
 namespace utils {

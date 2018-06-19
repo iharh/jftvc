@@ -13,6 +13,7 @@
 #include <iostream>
 #include <numeric>
 #include <stdexcept>
+#include <string>
 
 namespace fasttext {
 
@@ -25,8 +26,14 @@ real distL2(const real* x, const real* y, int32_t d) {
   return dist;
 }
 
-ProductQuantizer::ProductQuantizer(int32_t dim, int32_t dsub): dim_(dim),
-  nsubq_(dim / dsub), dsub_(dsub), centroids_(dim * ksub_), rng(seed_) {
+ProductQuantizer::ProductQuantizer(int32_t dim, int32_t dsub)
+:
+    dim_(dim),
+    nsubq_(dim / dsub),
+    dsub_(dsub),
+    centroids_(dim * ksub_)
+    //!!! rng(seed_)
+{
   lastdsub_ = dim_ % dsub;
   if (lastdsub_ == 0) {lastdsub_ = dsub_;}
   else {nsubq_++;}
@@ -115,38 +122,37 @@ void ProductQuantizer::MStep(const real* x0, real* centroids,
 void ProductQuantizer::kmeans(const real *x, real* c, int32_t n, int32_t d) {
   std::vector<int32_t> perm(n,0);
   std::iota(perm.begin(), perm.end(), 0);
-  std::shuffle(perm.begin(), perm.end(), rng);
+  // !!! std::random_shuffle(perm.begin(), perm.end(), rng);
   for (auto i = 0; i < ksub_; i++) {
     memcpy (&c[i * d], x + perm[i] * d, d * sizeof(real));
   }
-  auto codes = std::vector<uint8_t>(n);
+  uint8_t* codes = new uint8_t[n];
   for (auto i = 0; i < niter_; i++) {
-    Estep(x, c, codes.data(), d, n);
-    MStep(x, c, codes.data(), d, n);
+    Estep(x, c, codes, d, n);
+    MStep(x, c, codes, d, n);
   }
+  delete [] codes;
 }
 
 void ProductQuantizer::train(int32_t n, const real * x) {
   if (n < ksub_) {
     throw std::invalid_argument(
-        "Matrix too small for quantization, must have at least " + std::to_string(ksub_) + " rows");
+        "Matrix too small for quantization, must have at least " + std::to_string((_Longlong)ksub_) + " rows");
   }
   std::vector<int32_t> perm(n, 0);
   std::iota(perm.begin(), perm.end(), 0);
   auto d = dsub_;
   auto np = std::min(n, max_points_);
-  auto xslice = std::vector<real>(np * dsub_);
+  real* xslice = new real[np * dsub_];
   for (auto m = 0; m < nsubq_; m++) {
     if (m == nsubq_-1) {d = lastdsub_;}
-    if (np != n) {std::shuffle(perm.begin(), perm.end(), rng);}
+    // !!! if (np != n) {std::random_shuffle(perm.begin(), perm.end(), rng);}
     for (auto j = 0; j < np; j++) {
-      memcpy(
-          xslice.data() + j * d,
-          x + perm[j] * dim_ + m * dsub_,
-          d * sizeof(real));
+      memcpy (xslice + j * d, x + perm[j] * dim_ + m * dsub_, d * sizeof(real));
     }
-    kmeans(xslice.data(), get_centroids(m, 0), np, d);
+    kmeans(xslice, get_centroids(m, 0), np, d);
   }
+  delete [] xslice;
 }
 
 real ProductQuantizer::mulcode(const Vector& x, const uint8_t* codes,

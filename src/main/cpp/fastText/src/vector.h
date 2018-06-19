@@ -11,7 +11,6 @@
 
 #include <cstdint>
 #include <ostream>
-#include <vector>
 
 #include "real.h"
 
@@ -22,30 +21,17 @@ class QMatrix;
 
 class Vector {
 
-  protected:
-    std::vector<real> data_;
-
   public:
+    int64_t m_;
+    real* data_;
+
     explicit Vector(int64_t);
-    Vector(const Vector&) = delete;
-    Vector& operator=(const Vector&) = delete;
+    ~Vector();
 
-    inline real* data() {
-      return data_.data();
-    }
-    inline const real* data() const {
-      return data_.data();
-    }
-    inline real& operator[](int64_t i) {
-      return data_[i];
-    }
-    inline const real& operator[](int64_t i) const {
-      return data_[i];
-    }
+    real& operator[](int64_t);
+    const real& operator[](int64_t) const;
 
-    inline int64_t size() const {
-      return data_.size();
-    }
+    int64_t size() const;
     void zero();
     void mul(real);
     real norm() const;

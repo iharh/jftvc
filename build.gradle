@@ -1,0 +1,89 @@
+plugins {
+    id 'base'
+    id 'cpp'
+}
+
+model {
+    buildTypes {
+        release
+    }
+
+    toolChains {
+        visualCpp(VisualCpp) {
+            // if omitted - the latest version of MSVC will be used
+            if (project.findProperty('vs.base') == null) {
+                println "vs.base is not set"
+            } else {
+                println "vs.base: ${project.'vs.base'}"
+                installDir "${project.'vs.base'}"
+            }
+        }
+        // gcc(Gcc)
+        //clang(Clang)
+    }
+
+    platforms {
+        x64 {
+            architecture "x86_64"
+        }
+    }
+
+    binaries {
+        all {
+            if (toolChain in VisualCpp) {
+                cppCompiler.args "/EHsc"
+                println 'all toolchain is VisualCpp!'
+            }
+            if (toolChain in Clang) {
+                println 'all toolchain is Clang!'
+            }
+        }
+        //withType(SharedLibraryBinarySpec) {
+        //    if (toolChain in Clang) {
+        //        // println 'toolchain is Clang 2!'
+        //    }
+        //}
+    }
+
+    components {
+ 	clbjft(NativeLibrarySpec) { // SharedLibraryBinarySpec
+            targetPlatform 'x64'
+            sources {
+                cpp {
+                    source {
+                        srcDirs 'src/main/cpp/fastText/src'
+                        include "args.cc"
+                        include "dictionary.cc"
+                        include "fasttext.cc"
+                        include "matrix.cc"
+                        include "model.cc"
+                        include "productquantizer.cc"
+                        include "qmatrix.cc"
+                        include "utils.cc"
+                        include "vector.cc"
+                    }
+                    exportedHeaders {
+                        srcDirs 'src/main/cpp/fastText/src'
+                    }
+                }
+            }
+        }
+ 	test1(NativeExecutableSpec) {
+            targetPlatform 'x64'
+            sources {
+                cpp {
+                    source {
+                        srcDirs 'src/main/cpp/clb'
+                        include 'test.cpp'
+                    }
+                    lib library: 'clbjft', linkage: 'static'
+                }
+            }
+        }
+        //all {
+            //binaries.withType(StaticLibraryBinarySpec) {
+            //    buildable = false
+            //}
+        //}
+    }
+}

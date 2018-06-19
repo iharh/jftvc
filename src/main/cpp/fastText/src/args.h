@@ -16,14 +16,15 @@
 
 namespace fasttext {
 
-enum class model_name : int { cbow = 1, sg, sup };
-enum class loss_name : int { hs = 1, ns, softmax };
+//enum class model_name : int { cbow = 1, sg, sup };
+enum model_name { cbow = 1, sg, sup };
+//enum class loss_name : int { hs = 1, ns, softmax };
+enum loss_name { hs = 1, ns, softmax };
 
 class Args {
   protected:
-    std::string lossToString(loss_name) const;
-    std::string boolToString(bool) const;
-    std::string modelToString(model_name) const;
+    std::string lossToString(loss_name);
+    std::string boolToString(bool);
 
   public:
     Args();
@@ -50,20 +51,19 @@ class Args {
     std::string pretrainedVectors;
     bool saveOutput;
 
-    bool qout;
-    bool retrain;
-    bool qnorm;
-    size_t cutoff;
-    size_t dsub;
+  bool qout;
+  bool retrain;
+  bool qnorm;
+  size_t cutoff;
+  size_t dsub;
 
-    void parseArgs(const std::vector<std::string>& args);
-    void printHelp();
-    void printBasicHelp();
-    void printDictionaryHelp();
-    void printTrainingHelp();
-    void printQuantizationHelp();
-    void save(std::ostream&);
-    void load(std::istream&);
-    void dump(std::ostream&) const;
+  void parseArgs(const std::vector<std::string>& args);
+  void printHelp();
+  void printBasicHelp();
+  void printDictionaryHelp();
+  void printTrainingHelp();
+  void printQuantizationHelp();
+  void save(std::ostream&);
+  void load(std::istream&);
 };
 }
